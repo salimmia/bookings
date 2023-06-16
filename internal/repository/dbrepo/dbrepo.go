@@ -2,6 +2,7 @@ package dbrepo
 
 import (
 	"database/sql"
+
 	"github.com/salimmia/bookings/internal/config"
 	"github.com/salimmia/bookings/internal/repository"
 )
