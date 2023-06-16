@@ -71,3 +71,31 @@ func (m *MysqlDBRepo) InsertRoomRestriction(r models.RoomRestriction) error{
 
 	return nil
 }
+
+func (m *MysqlDBRepo) SearchAvailabilityByDates(start, end time.Time, roomId int) (bool, error){
+	ctx, cancel:= context.WithTimeout(context.Background(), 3 * time.Second)
+	defer cancel()
+
+	var numRows int
+	query:= `
+	SELECT COUNT(id)
+		FROM room_restrictions
+		WHERE room_id = ?
+			AND ? < end_date and ? > start_date;
+	`
+	row := m.DB.QueryRowContext(ctx, query,
+		roomId,
+		start,
+		end,
+	)
+	err := row.Scan(&numRows)
+
+	if err != nil{
+		return false, err
+	}
+	if numRows == 0{
+		return true, nil
+	}
+	
+	return false, nil
+}
