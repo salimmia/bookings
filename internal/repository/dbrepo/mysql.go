@@ -17,8 +17,6 @@ func (m *MysqlDBRepo) InsertReservation(res models.Reservation) (int, error){
 	ctx, cancel:= context.WithTimeout(context.Background(), 3 * time.Second)
 	defer cancel()
 	
-
-
 	stmt := `
 		INSERT INTO reservations (first_name, last_name, email, phone, start_date, end_date, room_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
@@ -49,8 +47,27 @@ func (m *MysqlDBRepo) InsertReservation(res models.Reservation) (int, error){
 	return lastInsertID, nil
 }
 
+// InsertRoomRestriction insert a restriction into the database
 func (m *MysqlDBRepo) InsertRoomRestriction(r models.RoomRestriction) error{
+	ctx, cancel:= context.WithTimeout(context.Background(), 3 * time.Second)
+	defer cancel()
 
-	
+	stmt := `
+		INSERT INTO room_restrictions (start_date, end_date, room_id, reservation_id, created_at, updated_at, restriction_id) VALUES (?, ?, ?, ?, ?, ?, ?)
+	`
+
+	_, err := m.DB.ExecContext(ctx, stmt,
+		r.StartDate,
+		r.EndDate,
+		r.RoomID,
+		r.ReservationID,
+		time.Now(),
+		time.Now(),
+		r.RestrictionID,
+	)
+	if err != nil{
+		return err
+	}
+
 	return nil
 }
