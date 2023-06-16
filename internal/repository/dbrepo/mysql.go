@@ -72,7 +72,7 @@ func (m *MysqlDBRepo) InsertRoomRestriction(r models.RoomRestriction) error{
 	return nil
 }
 
-func (m *MysqlDBRepo) SearchAvailabilityByDates(start, end time.Time, roomId int) (bool, error){
+func (m *MysqlDBRepo) SearchAvailabilityByDatesByRoomID(start, end time.Time, roomId int) (bool, error){
 	ctx, cancel:= context.WithTimeout(context.Background(), 3 * time.Second)
 	defer cancel()
 
@@ -96,6 +96,6 @@ func (m *MysqlDBRepo) SearchAvailabilityByDates(start, end time.Time, roomId int
 	if numRows == 0{
 		return true, nil
 	}
-	
+
 	return false, nil
 }
