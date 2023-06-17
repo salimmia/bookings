@@ -2,9 +2,10 @@ package helpers
 
 import (
 	"fmt"
-	"github.com/salimmia/bookings/internal/config"
 	"net/http"
 	"runtime/debug"
+
+	"github.com/salimmia/bookings/internal/config"
 )
 
 var app *config.AppConfig

@@ -7,14 +7,25 @@ import (
 	"github.com/salimmia/bookings/internal/repository"
 )
 
-type MysqlDBRepo struct {
+type mysqlDBRepo struct {
 	App *config.AppConfig
 	DB  *sql.DB
 }
 
+type testDBRepo struct {
+	App *config.AppConfig
+	DB *sql.DB
+}
+
 func NewMysqlRepo(conn *sql.DB, a *config.AppConfig) repository.DatabaseRepo {
-	return &MysqlDBRepo{
+	return &mysqlDBRepo{
 		App: a,
 		DB:  conn,
+	}
+}
+
+func NewTestingsRepo(a *config.AppConfig) repository.DatabaseRepo {
+	return &testDBRepo{
+		App: a,
 	}
 }

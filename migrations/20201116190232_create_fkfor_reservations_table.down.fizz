@@ -1,1 +1,0 @@
-drop_foreign_key("reservations", "reservations_rooms_id_fk", {})

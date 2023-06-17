@@ -8,12 +8,12 @@ import (
 	"github.com/salimmia/bookings/internal/models"
 )
 
-func (m *MysqlDBRepo) AllUsers() bool {
+func (m *mysqlDBRepo) AllUsers() bool {
 	return true
 }
 
 // InsertReservation insert a reservation into the database
-func (m *MysqlDBRepo) InsertReservation(res models.Reservation) (int, error){
+func (m *mysqlDBRepo) InsertReservation(res models.Reservation) (int, error){
 	ctx, cancel:= context.WithTimeout(context.Background(), 3 * time.Second)
 	defer cancel()
 	
@@ -48,7 +48,7 @@ func (m *MysqlDBRepo) InsertReservation(res models.Reservation) (int, error){
 }
 
 // InsertRoomRestriction insert a restriction into the database
-func (m *MysqlDBRepo) InsertRoomRestriction(r models.RoomRestriction) error{
+func (m *mysqlDBRepo) InsertRoomRestriction(r models.RoomRestriction) error{
 	ctx, cancel:= context.WithTimeout(context.Background(), 3 * time.Second)
 	defer cancel()
 
@@ -72,7 +72,7 @@ func (m *MysqlDBRepo) InsertRoomRestriction(r models.RoomRestriction) error{
 	return nil
 }
 
-func (m *MysqlDBRepo) SearchAvailabilityByDatesByRoomID(start, end time.Time, roomId int) (bool, error){
+func (m *mysqlDBRepo) SearchAvailabilityByDatesByRoomID(start, end time.Time, roomId int) (bool, error){
 	ctx, cancel:= context.WithTimeout(context.Background(), 3 * time.Second)
 	defer cancel()
 
@@ -101,7 +101,7 @@ func (m *MysqlDBRepo) SearchAvailabilityByDatesByRoomID(start, end time.Time, ro
 }
 
 // SearchAvailabilityByDatesByAllRooms returns a slice of available rooms for any given date range
-func (m *MysqlDBRepo) SearchAvailabilityByDatesByAllRooms(start, end time.Time) ([]models.Room, error){
+func (m *mysqlDBRepo) SearchAvailabilityForAllRooms(start, end time.Time) ([]models.Room, error){
 	ctx, cancel:= context.WithTimeout(context.Background(), 3 * time.Second)
 	defer cancel()
 
@@ -143,7 +143,7 @@ func (m *MysqlDBRepo) SearchAvailabilityByDatesByAllRooms(start, end time.Time) 
 	return rooms, nil
 }
 
-func (m *MysqlDBRepo) GetRoomByID(id int) (models.Room, error){
+func (m *mysqlDBRepo) GetRoomByID(id int) (models.Room, error){
 	ctx, cancel:= context.WithTimeout(context.Background(), 3 * time.Second)
 	defer cancel()
 
