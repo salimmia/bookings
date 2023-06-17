@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -314,6 +315,7 @@ func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request) 
 	})
 }
 
+// ChooseRoom Displays list of available rooms
 func (m *Repository) ChooseRoom(w http.ResponseWriter, r *http.Request){
 	roomID, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil{
@@ -334,4 +336,38 @@ func (m *Repository) ChooseRoom(w http.ResponseWriter, r *http.Request){
 	m.App.Session.Put(r.Context(), "reservation", res)
 
 	http.Redirect(w, r, "/make-reservation", http.StatusSeeOther)
+}
+
+// BookRoom takes URL parameters, builds a sessional variable, and takes user to make res screen
+func (m *Repository) BookRoom(w http.ResponseWriter, r *http.Request){
+	// id, s, e
+	ID, _:= strconv.Atoi(r.URL.Query().Get("id"))
+	startDate := r.URL.Query().Get("s")
+	endDate := r.URL.Query().Get("e")
+
+	layout := "2006-01-02"
+
+	var res models.Reservation
+
+	res.RoomID = ID
+	res.StartDate,_ = time.Parse(layout, startDate)
+	res.EndDate, _ = time.Parse(layout, endDate)
+
+	rooms, err := m.DB.GetRoomByID(ID)
+
+	if err != nil{
+		helpers.ServerError(w, err)
+		return
+	}
+
+	res.Room.RoomName = rooms.RoomName
+
+	data := make(map[string]interface{})
+	data["reservation"] = res
+
+	m.App.Session.Put(r.Context(), "reservation", res)
+
+	http.Redirect(w, r, "/make-reservation", http.StatusSeeOther)
+
+	// log.Println(ID, startDate, endDate)
 }
