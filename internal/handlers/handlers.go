@@ -194,33 +194,34 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	reservation.Room.RoomName = room.RoomName
 
 	// send notification by mail to the guest
-	// htmlMessage := fmt.Sprintf(`
-	// 	<strong>Reservation Confirmation</strong><br>
-	// 	Dear %s %s: <br>
-	// 	This is your reservation from %s to %s.
-	// 	`, reservation.FirstName, reservation.LastName, reservation.StartDate.Format("2006-01-02"), reservation.EndDate.Format("2006-01-02"))
+	htmlMessage := fmt.Sprintf(`
+		<strong>Reservation Confirmation</strong><br>
+		Dear %s %s: <br>
+		This is your reservation from %s to %s.
+		`, reservation.FirstName, reservation.LastName, reservation.StartDate.Format("2006-01-02"), reservation.EndDate.Format("2006-01-02"))
 
-	// msg := models.MailData{
+	msg := models.MailData{
+		From: "me@here.com",
+		To: reservation.Email,
+		Subject: "Reservation Confirmation",
+		Content: htmlMessage,
+		Template: "basic.html",
+	}
+	m.App.MailChan <- msg
+
+	// send notification to the property owner
+	// htmlMessage = fmt.Sprintf(`
+	// 	<strong>Reservation Confirmation</strong><br>
+	// 	A reservation has been made for room: %s from %s to %s.
+	// 	`, reservation.Room.RoomName, reservation.StartDate.Format("2006-01-02"), reservation.EndDate.Format("2006-01-02"))
+
+	// msg = models.MailData{
 	// 	From: "me@here.com",
-	// 	To: reservation.Email,
+	// 	To: "owner@here.com",
 	// 	Subject: "Reservation Confirmation",
 	// 	Content: htmlMessage,
 	// }
 	// m.App.MailChan <- msg
-
-	// send notification to the property owner
-	htmlMessage := fmt.Sprintf(`
-		<strong>Reservation Confirmation</strong><br>
-		A reservation has been made for room: %s from %s to %s.
-		`, reservation.Room.RoomName, reservation.StartDate.Format("2006-01-02"), reservation.EndDate.Format("2006-01-02"))
-
-	msg := models.MailData{
-		From: "me@here.com",
-		To: "owner@here.com",
-		Subject: "Reservation Confirmation",
-		Content: htmlMessage,
-	}
-	m.App.MailChan <- msg
 
 	m.App.Session.Put(r.Context(), "reservation", reservation)
 
