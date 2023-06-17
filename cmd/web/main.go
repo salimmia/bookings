@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/smtp"
 	"os"
 	"time"
 
@@ -31,6 +32,14 @@ func main() {
 		log.Fatal(err)
 	}
 	defer db.SQL.Close()
+
+	from := "me@gmail.com"
+	auth := smtp.PlainAuth("", from, "", "localhost")
+	err = smtp.SendMail("localhost:1025", auth, from, []string{"you@gmail.com"}, []byte("Hello, world"))
+
+	if err != nil{
+		log.Println(err)
+	}
 
 	fmt.Println(fmt.Sprintf("Starting application on port %s", portNumber))
 
