@@ -30,6 +30,7 @@ func Auth(next http.Handler) http.Handler{
 		if !helpers.IsAuthenticated(r){
 			session.Put(r.Context(), "error", "Log in first!")
 			http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+			return
 		}
 		next.ServeHTTP(w, r)
 	})
