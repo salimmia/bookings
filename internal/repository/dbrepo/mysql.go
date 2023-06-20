@@ -266,7 +266,8 @@ func (m *mysqlDBRepo) AllReservation() ([]models.Reservation, error){
 	var reservations []models.Reservation
 
 	query := `
-		SELECT r.id, r.first_name, r.last_name, r.email, r.phone, r.start_date, r.end_date, r.room_id, r.created_at, r.updated_at, rm.id, rm.room_name
+		SELECT r.id, r.first_name, r.last_name, r.email, r.phone, r.start_date, r.end_date, r.room_id, r.created_at, r.updated_at, r.processed,
+		rm.id, rm.room_name
 		FROM reservations r 
 		LEFT JOIN rooms rm
 		ON(r.room_id = rm.id)
@@ -296,6 +297,105 @@ func (m *mysqlDBRepo) AllReservation() ([]models.Reservation, error){
 			&reservation.RoomID,
 			&created_at,
 			&updated_at,
+			&reservation.Processed,
+			&reservation.Room.ID,
+			&reservation.Room.RoomName,
+		)
+		if err != nil{
+			return reservations, err
+			// log.Println(err)
+		}
+
+		start_dateStr := string(start_date)
+		parsedTimeStart, err := time.Parse("2006-01-02", start_dateStr)
+		if err != nil{
+			return reservations, err
+			// log.Println(err)
+		}
+		start_date_value = &parsedTimeStart
+
+		end_dateStr := string(end_date)
+		parsedTimeeEnd, err := time.Parse("2006-01-02", end_dateStr)
+		if err != nil{
+			return reservations, err
+			// log.Println(err)
+		}
+		end_date_value = &parsedTimeeEnd
+
+		created_atStr := string(created_at)
+		parsedTimeeCreated, err := time.Parse("2006-01-02 15:04:05", created_atStr)
+		if err != nil{
+			return reservations, err
+			// log.Println(err)
+		}
+		created_at_value = &parsedTimeeCreated
+
+		updated_atStr := string(updated_at)
+		parsedTimeeUpdated, err := time.Parse("2006-01-02 15:04:05", updated_atStr)
+		if err != nil{
+			return reservations, err
+			// log.Println(err)
+		}
+		updated_at_value = &parsedTimeeUpdated
+
+		reservation.StartDate = *start_date_value
+		reservation.EndDate = *end_date_value
+		reservation.CreatedAt = *created_at_value
+		reservation.UpdatedAt = *updated_at_value
+
+		// log.Println(reservation.StartDate)
+
+		reservations = append(reservations, reservation)
+	}
+
+	if err = rows.Err(); err != nil{
+		return reservations, err
+	}
+
+	return reservations, nil
+}
+
+// NewReservation returns a slice of new reservations
+func (m *mysqlDBRepo) NewReservation() ([]models.Reservation, error){
+	ctx, cancel:= context.WithTimeout(context.Background(), 3 * time.Second)
+	defer cancel()
+
+	var reservations []models.Reservation
+
+	query := `
+		SELECT r.id, r.first_name, r.last_name, r.email, r.phone, r.start_date, r.end_date, r.room_id, r.created_at, r.updated_at, r.processed, 
+		rm.id, rm.room_name
+		FROM reservations r 
+		LEFT JOIN rooms rm
+		ON(r.room_id = rm.id)
+		where r.processed = 0
+		ORDER BY r.start_date ASC
+	`
+	rows, err := m.DB.QueryContext(ctx, query)
+
+	if err != nil{
+		return reservations, err
+	}
+	defer rows.Close()
+
+	for rows.Next(){
+		var reservation models.Reservation
+		var start_date, end_date, created_at, updated_at []uint8
+
+		var start_date_value, end_date_value, created_at_value, updated_at_value *time.Time
+
+		err := rows.Scan(
+			&reservation.ID,
+			&reservation.FirstName,
+			&reservation.LastName,
+			&reservation.Email,
+			&reservation.Phone,
+			&start_date,
+			&end_date,
+			&reservation.RoomID,
+			&created_at,
+			&updated_at,
+			&reservation.Processed,
 			&reservation.Room.ID,
 			&reservation.Room.RoomName,
 		)

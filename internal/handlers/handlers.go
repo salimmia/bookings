@@ -461,6 +461,7 @@ func (m *Repository) BookRoom(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/make-reservation", http.StatusSeeOther)
 }
 
+// ShowLogin shows the login screen
 func (m *Repository) ShowLogin(w http.ResponseWriter, r *http.Request){
 	render.Template(w, r, "login.page.tmpl", &models.TemplateData{
 		Form: forms.New(nil),
@@ -508,6 +509,7 @@ func (m *Repository) PostShowLogin(w http.ResponseWriter, r *http.Request){
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
+// LogOut works for logout
 func (m *Repository) LogOut(w http.ResponseWriter, r *http.Request){
 	_ = m.App.Session.Destroy(r.Context())
 	_ = m.App.Session.RenewToken(r.Context())
@@ -515,10 +517,12 @@ func (m *Repository) LogOut(w http.ResponseWriter, r *http.Request){
 	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 }
 
+// AdminDashboard handles the admin dashboard
 func (m *Repository) AdminDashboard(w http.ResponseWriter, r *http.Request){
 	render.Template(w, r, "admin-dashboard.page.tmpl", &models.TemplateData{})
 }
 
+// AdminAllReservations shows the list of all reservations
 func (m *Repository) AdminAllReservations(w http.ResponseWriter, r *http.Request){
 	reservations, err:= m.DB.AllReservation()
 	// fmt.Println(len(reservations))
@@ -537,8 +541,23 @@ func (m *Repository) AdminAllReservations(w http.ResponseWriter, r *http.Request
 	})
 }
 
+// AdminNewReservations shows the list of all New reservations
 func (m *Repository) AdminNewReservations(w http.ResponseWriter, r *http.Request){
-	render.Template(w, r, "admin-new-reservations.page.tmpl", &models.TemplateData{})
+	reservations, err:= m.DB.NewReservation()
+	// fmt.Println(len(reservations))
+
+	if err != nil{
+		helpers.ServerError(w, err)
+		return
+	}
+
+	data := make(map[string]interface{})
+
+	data["reservations"] = reservations
+
+	render.Template(w, r, "admin-new-reservations.page.tmpl", &models.TemplateData{
+		Data: data,
+	})
 }
 
 func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Request){

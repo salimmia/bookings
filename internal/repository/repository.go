@@ -20,4 +20,5 @@ type DatabaseRepo interface {
 	Authenticate(email, testPassword string) (int, string, error)
 	
 	AllReservation() ([]models.Reservation, error)
+	NewReservation() ([]models.Reservation, error)
 }
