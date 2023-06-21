@@ -548,6 +548,7 @@ func (m *mysqlDBRepo) UpdateReservation(reservation models.Reservation) error{
 
 	query := `
 		UPDATE reservations SET first_name = ?, last_name = ?, email = ?, phone = ?, updated_at = ?
+		WHERE id = ?
 	`
 
 	_, err := m.DB.ExecContext(ctx, query,
@@ -556,6 +557,7 @@ func (m *mysqlDBRepo) UpdateReservation(reservation models.Reservation) error{
 		reservation.Email,
 		reservation.Phone,
 		time.Now(),
+		reservation.ID,
 	)
 
 	if err != nil{
