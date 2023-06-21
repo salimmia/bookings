@@ -109,7 +109,11 @@ func (m *testDBRepo) GetUserByID(id int) (models.User, error){
 	return user, nil
 }
 
-func (m *testDBRepo) UpdatedUser(user models.User) error{
+func (m *testDBRepo) UpdateUser(user models.User) error{
+	return nil
+}
+
+func (m *testDBRepo) UpdateReservation(user models.Reservation) error{
 	return nil
 }
 
@@ -131,4 +135,12 @@ func (m *testDBRepo) GetReservationByID(id int) (models.Reservation, error){
 	var reservation models.Reservation
 
 	return reservation, nil
+}
+
+func (m *testDBRepo) DeleteReservation(id int) error{
+	return nil
+}
+
+func (m *testDBRepo) UpdateProcessedForReservation(id, processed int) error{
+	return nil
 }

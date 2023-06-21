@@ -204,7 +204,7 @@ func (m *mysqlDBRepo) GetUserByID(id int) (models.User, error){
 }
 
 //UpdatedUser Update user details
-func (m *mysqlDBRepo) UpdatedUser(user models.User) error{
+func (m *mysqlDBRepo) UpdateUser(user models.User) error{
 	ctx, cancel:= context.WithTimeout(context.Background(), 3 * time.Second)
 	defer cancel()
 
@@ -539,4 +539,63 @@ func (m *mysqlDBRepo) GetReservationByID(id int) (models.Reservation, error){
 	}
 
 	return reservation, nil
+}
+
+//UpdatedReservation Update Reservation details
+func (m *mysqlDBRepo) UpdateReservation(reservation models.Reservation) error{
+	ctx, cancel:= context.WithTimeout(context.Background(), 3 * time.Second)
+	defer cancel()
+
+	query := `
+		UPDATE reservations SET first_name = ?, last_name = ?, email = ?, phone = ?, updated_at = ?
+	`
+
+	_, err := m.DB.ExecContext(ctx, query,
+		reservation.FirstName,
+		reservation.LastName,
+		reservation.Email,
+		reservation.Phone,
+		time.Now(),
+	)
+
+	if err != nil{
+		return err
+	}
+
+	return nil
+}
+
+// DeleteReservation deletes one reservation by id
+func (m *mysqlDBRepo) DeleteReservation(id int) error{
+	ctx, cancel:= context.WithTimeout(context.Background(), 3 * time.Second)
+	defer cancel()
+
+	query := `
+		delete from reservations where id = ?
+	`
+
+	_, err := m.DB.ExecContext(ctx, query, id)
+
+	if err != nil{
+		return err
+	}
+
+	return nil
+}
+
+// UpdateProcessedForReservation update processed in reservations table by id
+func (m *mysqlDBRepo) UpdateProcessedForReservation(id, processed int) error{
+	ctx, cancel:= context.WithTimeout(context.Background(), 3 * time.Second)
+	defer cancel()
+
+	query := `
+		UPDATE reservations SET processed = ? where id = ?
+	`
+	_, err := m.DB.ExecContext(ctx, query, processed, id)
+
+	if err != nil{
+		return err
+	}
+
+	return nil
 }
