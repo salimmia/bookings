@@ -601,3 +601,67 @@ func (m *mysqlDBRepo) UpdateProcessedForReservation(id, processed int) error{
 
 	return nil
 }
+
+func (m *mysqlDBRepo) AllRooms() ([]models.Room, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var rooms []models.Room
+
+	query := `
+	select id, room_name, created_at, updated_at from rooms order by room_name
+	`
+
+	rows, err := m.DB.QueryContext(ctx, query)
+	if err != nil {
+		return rooms, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var rm models.Room
+		var created_at, updated_at []uint8
+
+		var created_at_value, updated_at_value *time.Time
+		err := rows.Scan(
+			&rm.ID,
+			&rm.RoomName,
+			&created_at,
+			&updated_at,
+		)
+
+		if err != nil{
+			return rooms, err
+		}
+
+		created_atStr := string(created_at)
+		parsedTimeeCreated, err := time.Parse("2006-01-02 15:04:05", created_atStr)
+		if err != nil{
+			return rooms, err
+			// log.Println(err)
+		}
+		created_at_value = &parsedTimeeCreated
+
+		updated_atStr := string(updated_at)
+		parsedTimeeUpdated, err := time.Parse("2006-01-02 15:04:05", updated_atStr)
+		if err != nil{
+			return rooms, err
+			// log.Println(err)
+		}
+		updated_at_value = &parsedTimeeUpdated
+		
+		rm.CreatedAt = *created_at_value
+		rm.UpdatedAt = *updated_at_value
+
+		if err != nil {
+			return rooms, err
+		}
+		rooms = append(rooms, rm)
+	}
+
+	if err = rows.Err(); err != nil {
+		return rooms, err
+	}
+
+	return rooms, nil
+}
