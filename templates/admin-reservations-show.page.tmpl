@@ -68,7 +68,9 @@
                 {{else}}
                     <a href="/admin/reservations-{{$src}}" class="btn btn-warning">Cancel</a>
                 {{end}}
+                {{if eq $res.Processed 0}}
                     <a href="#!" class="btn btn-info" onclick="processRes({{$res.ID}})">Mark as Processed</a>
+                {{end}}
             </div>
 
             <div class="float-right">
@@ -91,7 +93,7 @@
                     if (result !== false) {
                         window.location.href = "/admin/process-reservation/{{$src}}/"
                             + id
-                            
+                            + "/do?y={{index .StringMap "year"}}&m={{index .StringMap "month"}}";
                     }
                 }
             })
@@ -105,6 +107,7 @@
                     if (result !== false) {
                         window.location.href = "/admin/delete-reservation/{{$src}}/"
                             + id
+                            + "/do?y={{index .StringMap "year"}}&m={{index .StringMap "month"}}";
                     }
                 }
             })
