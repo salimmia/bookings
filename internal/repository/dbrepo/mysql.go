@@ -665,3 +665,70 @@ func (m *mysqlDBRepo) AllRooms() ([]models.Room, error) {
 
 	return rooms, nil
 }
+
+// GetRestrictionsForRoomByDate returns restrictions for a room by date range
+func (m *mysqlDBRepo) GetRestrictionsForRoomByDate(roomID int, start, end time.Time) ([]models.RoomRestriction, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var restrictions []models.RoomRestriction
+
+	query := `
+		select id, coalesce(reservation_id, 0), restriction_id, room_id, start_date, end_date
+		from room_restrictions where ? < end_date and ? >= start_date
+		and room_id = ?
+`
+
+	rows, err := m.DB.QueryContext(ctx, query, start, end, roomID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var r models.RoomRestriction
+
+		var start_date, end_date []uint8
+
+		var start_date_value, end_date_value *time.Time
+
+		err := rows.Scan(
+			&r.ID,
+			&r.ReservationID,
+			&r.RestrictionID,
+			&r.RoomID,
+			&start_date,
+			&end_date,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		start_dateStr := string(start_date)
+		parsedTimeStart, err := time.Parse("2006-01-02", start_dateStr)
+		if err != nil{
+			return restrictions, err
+			// log.Println(err)
+		}
+		start_date_value = &parsedTimeStart
+
+		end_dateStr := string(end_date)
+		parsedTimeeEnd, err := time.Parse("2006-01-02", end_dateStr)
+		if err != nil{
+			return restrictions, err
+			// log.Println(err)
+		}
+		end_date_value = &parsedTimeeEnd
+
+		r.StartDate = *start_date_value
+		r.EndDate = *end_date_value
+
+		restrictions = append(restrictions, r)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return restrictions, nil
+}
