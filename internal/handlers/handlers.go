@@ -717,12 +717,14 @@ func (m *Repository) AdminReservationsCalendar(w http.ResponseWriter, r *http.Re
 			} else {
 				// it's a block
 				blockMap[y.StartDate.Format("2006-01-2")] = y.ID
+				// log.Println(y.StartDate.Format("2006-01-2"))
 			}
 		}
 		data[fmt.Sprintf("reservation_map_%d", x.ID)] = reservationMap
 		data[fmt.Sprintf("block_map_%d", x.ID)] = blockMap
 
 		m.App.Session.Put(r.Context(), fmt.Sprintf("block_map_%d", x.ID), blockMap)
+		// m.App.Session.Put(r.Context(), fmt.Sprintf("reservation_map_%d", x.ID), reservationMap)
 	}
 
 	render.Template(w, r, "admin-reservations-calendar.page.tmpl", &models.TemplateData{
