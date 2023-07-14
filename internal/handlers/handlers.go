@@ -135,6 +135,14 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// add this to fix invalid data error
+	room, err := m.DB.GetRoomByID(roomID)
+	if err != nil {
+		m.App.Session.Put(r.Context(), "error", "can't find room!")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
 	reservation := models.Reservation{
 		FirstName: r.Form.Get("first_name"),
 		LastName:  r.Form.Get("last_name"),
@@ -143,6 +151,7 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		StartDate: startDate,
 		EndDate:   endDate,
 		RoomID:    roomID,
+		Room:      room, // add this to fix invalid data error
 	}
 
 	form := forms.New(r.PostForm)
@@ -154,10 +163,16 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 	if !form.Valid() {
 		data := make(map[string]interface{})
 		data["reservation"] = reservation
-		http.Error(w, "my own error message", http.StatusSeeOther)
+
+		// add these lines to fix bad data error
+		stringMap := make(map[string]string)
+		stringMap["start_date"] = sd
+		stringMap["end_date"] = ed
+
 		render.Template(w, r, "make-reservation.page.tmpl", &models.TemplateData{
-			Form: form,
-			Data: data,
+			Form:      form,
+			Data:      data,
+			StringMap: stringMap, // fixes error after invalid data
 		})
 		return
 	}
@@ -184,47 +199,37 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var room models.Room
-
-	room, err = m.DB.GetRoomByID(roomID)
-
-	if err != nil {
-		m.App.Session.Put(r.Context(), "error", "can't find room!")
-		http.Redirect(w, r, "/", http.StatusSeeOther)
-		return
-	}
-
-	reservation.Room.RoomName = room.RoomName
-
-	// send notification by mail to the guest
+	// send notifications - first to guest
 	htmlMessage := fmt.Sprintf(`
 		<strong>Reservation Confirmation</strong><br>
-		Dear %s %s: <br>
-		This is your reservation from %s to %s.
-		`, reservation.FirstName, reservation.LastName, reservation.StartDate.Format("2006-01-02"), reservation.EndDate.Format("2006-01-02"))
+		Dear %s: <br>
+		This is confirm your reservation from %s to %s.
+`, reservation.FirstName, reservation.StartDate.Format("2006-01-02"), reservation.EndDate.Format("2006-01-02"))
 
 	msg := models.MailData{
-		From: "me@here.com",
-		To: reservation.Email,
-		Subject: "Reservation Confirmation",
-		Content: htmlMessage,
+		To:       reservation.Email,
+		From:     "me@here.com",
+		Subject:  "Reservation Confirmation",
+		Content:  htmlMessage,
 		Template: "basic.html",
 	}
+
 	m.App.MailChan <- msg
 
-	// send notification to the property owner
-	// htmlMessage = fmt.Sprintf(`
-	// 	<strong>Reservation Confirmation</strong><br>
-	// 	A reservation has been made for room: %s from %s to %s.
-	// 	`, reservation.Room.RoomName, reservation.StartDate.Format("2006-01-02"), reservation.EndDate.Format("2006-01-02"))
+	// send notification to property owner
+	htmlMessage = fmt.Sprintf(`
+		<strong>Reservation Notification</strong><br>
+		A reservation has been made for %s from %s to %s.
+		`, reservation.Room.RoomName, reservation.StartDate.Format("2006-01-02"), reservation.EndDate.Format("2006-01-02"))
 
-	// msg = models.MailData{
-	// 	From: "me@here.com",
-	// 	To: "owner@here.com",
-	// 	Subject: "Reservation Confirmation",
-	// 	Content: htmlMessage,
-	// }
-	// m.App.MailChan <- msg
+	msg = models.MailData{
+		To:      "me@here.com",
+		From:    "me@here.com",
+		Subject: "Reservation Notification",
+		Content: htmlMessage,
+	}
+
+	m.App.MailChan <- msg
 
 	m.App.Session.Put(r.Context(), "reservation", reservation)
 
