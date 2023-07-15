@@ -7,93 +7,71 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-        <title>My Nice Page</title>
+        <title>Fort Smythe Bed and Breakfast</title>
 
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
-              integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+              integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
               crossorigin="anonymous">
+
         <link rel="stylesheet"
-              href="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.1.2/dist/css/datepicker-bs4.min.css">
+              href="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.0/dist/css/datepicker-bs4.min.css">
         <link rel="stylesheet" type="text/css" href="https://unpkg.com/notie/dist/notie.min.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.15.5/dist/sweetalert2.min.css">
-        <link rel="stylesheet" type="text/css" href="/static/css/styles.css">
-
-        <style>
-            .btn-outline-secondary {
-                color: aqua;
-                border-color: #6c757d;
-            }
-
-            p {
-
-            }
-
-            .paraClass {
-                font-size: 3em;
-            }
-
-            .secondClass {
-                color: red;
-            }
-
-            #lastPara {
-                text-decoration: underline;
-            }
-        </style>
-
+        <link rel="stylesheet" type="text/css" href="static/css/styles.css">
     </head>
 
     <body>
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">Navbar</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item active">
-                    <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/about">About</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
-                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Rooms
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                        <a class="dropdown-item" href="/generals-quarters">General's Quarters</a>
-                        <a class="dropdown-item" href="/majors-suite">Major's Suite</a>
-                    </div>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/search-availability" tabindex="-1" aria-disabled="true">Book Now</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/contact" tabindex="-1" aria-disabled="true">Contact</a>
-                </li>
-
-                <li class="nav-item">
-                    {{if eq .IsAuthenticated 1}}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Admin
-                            </a>
-                            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                <a class="dropdown-item" href="/admin/dashboard">Dashboard</a>
-                                <a class="dropdown-item" href="/user/logout">Logout</a>
-                            </div>
-                        </li>
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">&nbsp;</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            Rooms
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="/generals-quarters">General's Quarters</a></li>
+                            <li><a class="dropdown-item" href="/majors-suite">Major's Suite</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/search-availability">Search Availability</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/contact">Contact</a>
+                    </li>
+                    <li class="nav-item">
+                        {{if eq .IsAuthenticated 1}}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                           data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            Admin
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="/admin/dashboard">Dashboard</a></li>
+                            <li><a class="dropdown-item" href="/user/logout">Logout</a></li>
+                        </ul>
+                    </li>
                     {{else}}
-                        <a class="nav-link" href="/user/login"tabindex="-1" aria-disabled="true">Login</a>
+                        <a class="nav-link" href="/user/login" tabindex="-1" aria-disabled="true">Login</a>
                     {{end}}
-                </li>
-
-            </ul>
+                    </li>
+                </ul>
+            </div>
         </div>
     </nav>
 
@@ -102,31 +80,35 @@
     {{end}}
 
 
-    <footer class="my-footer">
+    <footer class="row my-footer">
         <div class="row">
-            <div class="col">
-                left
+            <div class="col text-center">
+                <strong>Fort Smythe Bed &amp; Breakfast</strong><br>
+                18/2 CHA, Begungonj Len<br>
+                Narinda, Dhaka-1100<br>
+                Bangladesh<br>
+                +8801521-435652<br>
+                <a href="mailto:salimmia3745@gmail.com">salimmia3745@gmail.com</a>
             </div>
 
             <div class="col">
-                center
+
             </div>
 
-            <div class="col">
-                right
+            <div class="col text-center">
+                <strong>Your home away<br>from home</strong>
             </div>
         </div>
     </footer>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-            integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
             crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns"
-            crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.1.2/dist/js/datepicker-full.min.js"></script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.0/dist/js/datepicker-full.min.js"></script>
     <script src="https://unpkg.com/notie"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.15.5/dist/sweetalert2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script src="/static/js/app.js"></script>
 
     {{block "js" .}}
@@ -172,15 +154,15 @@
         }
 
         {{with .Error}}
-            notify("{{.}}", "error");
+        notify("{{.}}", "error")
         {{end}}
 
         {{with .Flash}}
-        notify("{{.}}", "success");
+        notify("{{.}}", "success")
         {{end}}
 
         {{with .Warning}}
-        notify("{{.}}", "warning");
+        notify("{{.}}", "warning")
         {{end}}
     </script>
 
