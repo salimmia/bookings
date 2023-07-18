@@ -22,7 +22,10 @@ sudo /opt/lampp/lampp start
 
 - Then create a Database <b>bookings</b>
 - Import bookings.sql.zip file(given inside the Database folder in your download folder) in this "bookings" Database
-- Open the terminal and go to your project name directory and run ```./run.sh```
+- Open the terminal and go to your project name directory and run 
+```
+./run.sh
+```
 
 
 - Go to your browser and go http://localhost/8080/
