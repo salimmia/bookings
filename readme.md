@@ -8,7 +8,7 @@ The repository for [Building Modern Web Applications with Go](https://www.udemy.
 - Uses [alex edwards scs session management](github.com/alexedwards/scs)
 - Uses [nosurf](github.com/justinas/nosurf)
 
-Free Download Source Code "<b>bookings</b>"
+Download Source Code "<b>bookings</b>"
 
 - <b>Its all about for linux</b>
 - FIRST Download the source code
@@ -38,6 +38,6 @@ go mod init github.com/salimmia/bookings
 
 Create your own staff
 
-Admin
+For Admin
 - Email: admin@admin.com
 - Password: password
