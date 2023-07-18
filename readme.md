@@ -13,7 +13,7 @@ Free Download Source Code "<b>bookings</b>"
 - <b>Its all about for linux</b>
 - FIRST Download the source code
 - Extract the file and copy "bookings" folder
-
+- Open this bookings folder in your fovourite Editor (Like: <b>Virtual studio code</b>)
 - Install XAMPP and go to your command prompt and run
 ```
 sudo /opt/lampp/lampp start
@@ -23,6 +23,9 @@ sudo /opt/lampp/lampp start
 - Then create a Database <b>bookings</b>
 - Import bookings.sql.zip file(given inside the Database folder in your download folder) in this "bookings" Database
 - Open the terminal and go to your project name directory and run 
+```
+go mod init github.com/salimmia/bookings
+```
 ```
 ./run.sh
 ```
@@ -36,5 +39,5 @@ sudo /opt/lampp/lampp start
 Create your own staff
 
 Admin
-user: admin@admin.com
-pass: password
+- user: admin@admin.com
+- pass: password
