@@ -39,5 +39,5 @@ go mod init github.com/salimmia/bookings
 Create your own staff
 
 Admin
-- user: admin@admin.com
-- pass: password
+- Email: admin@admin.com
+- Password: password
