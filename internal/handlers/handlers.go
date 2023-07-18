@@ -216,20 +216,20 @@ func (m *Repository) PostReservation(w http.ResponseWriter, r *http.Request) {
 
 	m.App.MailChan <- msg
 
-	// send notification to property owner
-	htmlMessage = fmt.Sprintf(`
-		<strong>Reservation Notification</strong><br>
-		A reservation has been made for %s from %s to %s.
-		`, reservation.Room.RoomName, reservation.StartDate.Format("2006-01-02"), reservation.EndDate.Format("2006-01-02"))
+// 	// send notification to property owner
+// 	htmlMessage = fmt.Sprintf(`
+// 		<strong>Reservation Notification</strong><br>
+// 		A reservation has been made for %s from %s to %s.
+// 		`, reservation.Room.RoomName, reservation.StartDate.Format("2006-01-02"), reservation.EndDate.Format("2006-01-02"))
 
-	msg = models.MailData{
-		To:      "me@here.com",
-		From:    "me@here.com",
-		Subject: "Reservation Notification",
-		Content: htmlMessage,
-	}
+// 	msg = models.MailData{
+// 		To:      "me@here.com",
+// 		From:    "me@here.com",
+// 		Subject: "Reservation Notification",
+// 		Content: htmlMessage,
+// 	}
 
-	m.App.MailChan <- msg
+// 	m.App.MailChan <- msg
 
 	m.App.Session.Put(r.Context(), "reservation", reservation)
 
@@ -511,8 +511,240 @@ func (m *Repository) PostShowLogin(w http.ResponseWriter, r *http.Request){
 
 	m.App.Session.Put(r.Context(), "user_id", id)
 
+	user_info, err := m.DB.GetUserByID(id)
+
+	user := models.User{
+		ID: id,
+		FirstName: user_info.FirstName,
+		LastName: user_info.LastName,
+		Phone: user_info.Phone,
+		Email: user_info.Email,
+		Password: user_info.Password,
+		AccessLevel: user_info.AccessLevel,
+	}
+	data := make(map[string]interface{})
+	data["user"] = user
+
+	if err != nil{
+		helpers.ServerError(w, err)
+		return
+	}
+
 	m.App.Session.Put(r.Context(), "flash", "Logged in Successfully")
+	if user.AccessLevel == 1{
+		m.App.Session.Put(r.Context(), "is_admin", user.AccessLevel)
+	}
+
+	m.App.Session.Put(r.Context(), "user_information", user)
+
+	render.Template(w, r, "home.page.tmpl", &models.TemplateData{
+		Data: data,
+		IsAdmin: user.AccessLevel == 1,
+	})
+}
+
+// ShowSignup shows the Signup screen
+func (m *Repository) ShowSignup(w http.ResponseWriter, r *http.Request){
+	// log.Println("Pre signup works")
+	render.Template(w, r, "register.page.tmpl", &models.TemplateData{
+		Form: forms.New(nil),
+	})
+}
+
+// PostShowSignup handles Signup the user
+func (m *Repository) PostShowSignup(w http.ResponseWriter, r *http.Request){
+	_ = m.App.Session.RenewToken(r.Context())
+
+	// log.Println("Post Signup works")
+	
+	err := r.ParseForm()
+	if err != nil{
+		log.Println(err)
+	}
+
+	form := forms.New(r.PostForm)
+	form.Required("first_name", "email", "password")
+	form.IsEmail("email")
+	form.MinLength("password", 6)
+
+	var first_name, last_name, phone, email, password string
+
+	first_name = r.Form.Get("first_name")
+	last_name = r.Form.Get("last_name")
+	phone = r.Form.Get("phone")
+	email = r.Form.Get("email")
+	password = r.Form.Get("password")
+
+	id, _, _ := m.DB.Authenticate(email, password)
+
+	user := models.User{
+		ID: id,
+		FirstName: first_name,
+		LastName: last_name,
+		Phone: phone,
+		Email: email,
+		Password: password,
+		AccessLevel: 0,
+	}
+	data := make(map[string]interface{})
+	data["user"] = user
+
+	if !form.Valid() {
+		render.Template(w, r, "register.page.tmpl", &models.TemplateData{
+			Form:      form,
+			Data:      data,
+		})
+		return
+	}
+
+	err = m.DB.UserRegistration(first_name, last_name, phone, email, password)
+
+	if err != nil{
+		log.Println(err)
+		m.App.Session.Put(r.Context(), "error", "Invalid registration credentials")
+		http.Redirect(w, r, "/user/signup", http.StatusSeeOther)
+
+		return;
+	}
+
+	// auto logged in after signup
+	m.App.Session.Put(r.Context(), "user_id", id)
+	m.App.Session.Put(r.Context(), "user_information", user)
+
+	m.App.Session.Put(r.Context(), "flash", "Registration Successful")
+	render.Template(w, r, "home.page.tmpl", &models.TemplateData{
+		Data: data,
+		IsAdmin: false,
+	})
+	// http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+// ForgotPassword handles forgot password page in
+func (m *Repository) ForgotPassword(w http.ResponseWriter, r *http.Request){
+	render.Template(w, r, "forgot-password.page.tmpl", &models.TemplateData{
+		Form: forms.New(nil),
+	})
+}
+
+func (m *Repository) ResetPassword(w http.ResponseWriter, r *http.Request){
+	render.Template(w, r, "reset-password.page.tmpl", &models.TemplateData{
+		Form: forms.New(nil),
+	})
+}
+
+func (m *Repository) PostResetPassword(w http.ResponseWriter, r *http.Request){
+	// log.Println("works reset password page...")
+
+	err := r.ParseForm()
+
+	if err != nil{
+		helpers.ServerError(w, err)
+		return
+	}
+
+	email := r.Form.Get("email")
+
+	// log.Println(email)
+
+	form := forms.New(r.PostForm)
+
+	form.Required("email")
+	form.IsEmail("email")
+
+	if !form.Valid() {
+		render.Template(w, r, "forgot-password.page.tmpl", &models.TemplateData{
+			Form:      form,
+		})
+		return
+	}
+
+	user, err := m.DB.GetUserByEmail(email)
+	// log.Println("email", email)
+
+	if err != nil{
+		helpers.ServerError(w, err)
+		return
+	}
+
+	data := make(map[string]interface{})
+	data["user"] = user
+
+	m.App.Session.Put(r.Context(), "user", user)
+
+	render.Template(w, r, "reset-password.page.tmpl", &models.TemplateData{
+		Data: data,
+		Form: form,
+	})
+}
+
+// UserProfile is page of user's profile
+func (m *Repository) ChangePassword(w http.ResponseWriter, r *http.Request){
+	// log.Println("change password comming...")
+
+	user, _:= m.App.Session.Get(r.Context(), "user").(models.User)
+
+	data := make(map[string]interface{})
+	data["user"] = user
+
+	
+	err:= r.ParseForm()
+
+	if err != nil{
+		helpers.ServerError(w, err)
+		return
+	}
+
+	form := forms.New(r.PostForm)
+
+	form.Required("password", "password_confirm")
+
+	form.MinLength("password", 6)
+	form.MinLength("password_confirm", 6)
+
+	if !form.Valid() {
+		render.Template(w, r, "reset-password.page.tmpl", &models.TemplateData{
+			Form:      form,
+			Data: data,
+		})
+		return
+	}
+
+	newPassword := r.Form.Get("password")
+	confirmNewPassword := r.Form.Get("password_confirm")
+	email := user.Email
+
+	// log.Println(newPassword)
+	// log.Println(confirmNewPassword)
+	// log.Println(user)
+	// log.Println(email)
+
+	if newPassword != confirmNewPassword{
+		// log.Println("password does not match")
+		m.App.Session.Put(r.Context(), "error", "Password doesn't match")
+		render.Template(w, r, "reset-password.page.tmpl", &models.TemplateData{
+			Form: form,
+			
+		})
+		return
+	}
+
+	// log.Println(email);
+
+	err = m.DB.ResetPassword(email, newPassword)
+
+	if err != nil{
+		helpers.ServerError(w, err)
+		return
+	}
+
+	m.App.Session.Put(r.Context(), "flash", "Password changed successfully!")
+
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+// UserProfile is page of user's profile
+func (m *Repository) UserProfile(w http.ResponseWriter, r *http.Request){
+	render.Template(w, r, "user-profile.page.tmpl", &models.TemplateData{})
 }
 
 // LogOut works for logout
@@ -760,7 +992,8 @@ func (m *Repository) AdminProcessReservation(w http.ResponseWriter, r *http.Requ
 	src := chi.URLParam(r, "src")
 	err := m.DB.UpdateProcessedForReservation(id, 1)
 	if err != nil {
-		log.Println(err)
+		helpers.ServerError(w, err)
+		return
 	}
 
 	year := r.URL.Query().Get("y")
@@ -831,7 +1064,9 @@ func (m *Repository) AdminPostReservationsCalendar(w http.ResponseWriter, r *htt
 						//delete the restriction by id
 						err := m.DB.DeleteBlockByID(value)
 						if err != nil {
-							log.Println(err)
+							// log.Println(err)
+							helpers.ServerError(w, err)
+							return
 						}
 					}
 				}
@@ -853,7 +1088,9 @@ func (m *Repository) AdminPostReservationsCalendar(w http.ResponseWriter, r *htt
 			// insert a new block
 			err := m.DB.InsertBlockForRoom(roomID, t)
 			if err != nil {
-				log.Println(err)
+				// log.Println(err)
+				helpers.ServerError(w, err)
+				return
 			}
 		}
 	}

@@ -2,10 +2,12 @@ package helpers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"runtime/debug"
 
 	"github.com/salimmia/bookings/internal/config"
+	"github.com/salimmia/bookings/internal/models"
 )
 
 var app *config.AppConfig
@@ -30,4 +32,29 @@ func IsAuthenticated(r *http.Request) bool{
 	exists := app.Session.Exists(r.Context(), "user_id")
 
 	return exists
+}
+
+func IsAdmin(r *http.Request) bool {
+	exists := app.Session.Exists(r.Context(), "is_admin")
+	// log.Println(exists)
+	return exists
+}
+
+func UserInformation(r *http.Request) map[string]interface{} {
+	user := app.Session.Get(r.Context(), "user_information").(models.User)
+
+	user_information := make(map[string]interface{})
+
+	user_information["id"] = user.ID
+	user_information["first_name"] = user.FirstName
+	user_information["last_name"] = user.LastName
+	user_information["phone"] = user.Phone
+	user_information["email"] = user.Email
+	user_information["password"] = user.Password
+	user_information["created_at"] = user.CreatedAt
+	user_information["updated_at"] = user.UpdatedAt
+
+	log.Println(user_information)
+
+	return user_information
 }

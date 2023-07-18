@@ -29,4 +29,8 @@ type DatabaseRepo interface {
 	GetRestrictionsForRoomByDate(roomID int, start, end time.Time) ([]models.RoomRestriction, error)
 	InsertBlockForRoom(id int, startDate time.Time) error
 	DeleteBlockByID(id int) error
+	UserRegistration(first_name, last_name, phone, email, password string) error
+	IsEmailInDatabase(email string) (bool, error)
+	ResetPassword(email, password string) error
+	GetUserByEmail(email string) (models.User, error)
 }

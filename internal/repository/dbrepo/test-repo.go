@@ -169,3 +169,21 @@ func (m *testDBRepo) DeleteBlockByID(id int) error {
 	
 	return nil
 }
+
+func (m *testDBRepo) UserRegistration(first_name, last_name, phone, email, password string) error {
+	return nil
+}
+
+func (m *testDBRepo) IsEmailInDatabase(email string) (bool, error) {
+	return true, nil
+}
+
+func (m *testDBRepo) ResetPassword(email, password string) error {
+	return nil
+}
+
+//GetUserByID returns a user details by ID
+func (m *testDBRepo) GetUserByEmail(email string) (models.User, error){
+	var user models.User
+	return user, nil
+}

@@ -1,6 +1,8 @@
 package models
 
-import "github.com/salimmia/bookings/internal/forms"
+import (
+	"github.com/salimmia/bookings/internal/forms"
+)
 
 // TemplateData holds data sent from handlers to templates
 type TemplateData struct {
@@ -14,4 +16,6 @@ type TemplateData struct {
 	Error     		string
 	Form      		*forms.Form
 	IsAuthenticated int
+	IsAdmin 		bool
+	UserInformation map[string]interface{}
 }

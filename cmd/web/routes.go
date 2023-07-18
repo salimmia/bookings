@@ -35,13 +35,20 @@ func routes(app *config.AppConfig) http.Handler {
 
 	mux.Get("/user/login", handlers.Repo.ShowLogin)
 	mux.Post("/user/login", handlers.Repo.PostShowLogin)
+	mux.Get("/user/forgot-password", handlers.Repo.ForgotPassword)
+	mux.Post("/user/change-password", handlers.Repo.ChangePassword)
+	mux.Get("/user/reset-password", handlers.Repo.ResetPassword)
+	mux.Post("/user/reset-password", handlers.Repo.PostResetPassword)
+	mux.Get("/user/signup", handlers.Repo.ShowSignup)
+	mux.Post("/user/signup", handlers.Repo.PostShowSignup)
 	mux.Get("/user/logout", handlers.Repo.LogOut)
+	mux.Get("/user/profile", handlers.Repo.UserProfile)
 
 	fileServer := http.FileServer(http.Dir("./static/"))
 	mux.Handle("/static/*", http.StripPrefix("/static", fileServer))
 
 	mux.Route("/admin", func(mux chi.Router) {
-		// mux.Use(Auth)
+		mux.Use(Auth)
 		
 		mux.Get("/dashboard", handlers.Repo.AdminDashboard)
 

@@ -2,7 +2,7 @@
 
 {{define "content"}}
     <div class="container">
-        <div class="row">
+        <div class="row1">
             <div class="col">
                 <h1>Login</h1>
 
@@ -28,11 +28,22 @@
                                name='password' value="" required>
                     </div>
                     <hr>
-
                     <input type="submit" class="btn btn-primary" value="Submit">
+                    <div class="clearfix supporter">
+                        <div class="pull-left remember-me">
+                        <input id="rememberMe" type="checkbox">
+                        <label for="rememberMe">Remember Me</label>
+                        </div>
+                        <a class="forgot pull-right" href="/user/forgot-password"><font color="#erths"><b>Forgot Password?</font></b></a>
+                    </div>
                 </form>
-
+                
             </div>
+            
+        </div>
+        <div class="signup-wrapper text-center">
+            <a href="/user/signup"><font color="#agasd">Don't have an account?</font> <span class="text-primary"><b>Create One</b></span></a>
+            
         </div>
     </div>
 {{end}}

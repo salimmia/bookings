@@ -7,6 +7,7 @@ type User struct {
 	ID          int
 	FirstName   string
 	LastName    string
+	Phone		string
 	Email       string
 	Password    string
 	AccessLevel int

@@ -40,10 +40,7 @@ func (f *Form) Required(fields ...string) {
 // Has checks if form field is in post and not empty
 func (f *Form) Has(field string) bool {
 	x := f.Get(field)
-	if x == "" {
-		return false
-	}
-	return true
+	return x != ""
 }
 
 // MinLength checks for string minimum length

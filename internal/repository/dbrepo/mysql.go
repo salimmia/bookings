@@ -184,6 +184,9 @@ func (m *mysqlDBRepo) GetUserByID(id int) (models.User, error){
 	`
 
 	row := m.DB.QueryRowContext(ctx, query, id)
+	var created_at, updated_at []uint8
+
+    var created_at_value, updated_at_value *time.Time
 
 	err := row.Scan(
 		&user.ID,
@@ -192,13 +195,87 @@ func (m *mysqlDBRepo) GetUserByID(id int) (models.User, error){
 		&user.Email,
 		&user.Password,
 		&user.AccessLevel,
-		&user.CreatedAt,
-		&user.UpdatedAt,
+		&created_at,
+		&updated_at,
 	)
 
 	if err != nil{
 		return user, err
 	}
+
+	created_atStr := string(created_at)
+	parsedTimeeCreated, err := time.Parse("2006-01-02 15:04:05", created_atStr)
+	if err != nil{
+		return user, err
+		// log.Println(err)
+	}
+	created_at_value = &parsedTimeeCreated
+
+	updated_atStr := string(updated_at)
+	parsedTimeeUpdated, err := time.Parse("2006-01-02 15:04:05", updated_atStr)
+	if err != nil{
+		return user, err
+		// log.Println(err)
+	}
+	updated_at_value = &parsedTimeeUpdated
+
+	user.CreatedAt = *created_at_value
+	user.UpdatedAt = *updated_at_value
+
+	return user, nil
+}
+
+//GetUserByID returns a user details by ID
+func (m *mysqlDBRepo) GetUserByEmail(email string) (models.User, error){
+	ctx, cancel:= context.WithTimeout(context.Background(), 3 * time.Second)
+	defer cancel()
+
+	var user models.User
+
+	query := `
+		SELECT id, first_name, last_name, email, password, access_level, created_at, updated_at
+		FROM users
+		WHERE email = ?
+	`
+
+	row := m.DB.QueryRowContext(ctx, query, email)
+	var created_at, updated_at []uint8
+
+    var created_at_value, updated_at_value *time.Time
+
+	err := row.Scan(
+		&user.ID,
+		&user.FirstName,
+		&user.LastName,
+		&user.Email,
+		&user.Password,
+		&user.AccessLevel,
+		&created_at,
+		&updated_at,
+	)
+
+	if err != nil{
+		return user, err
+	}
+
+	created_atStr := string(created_at)
+	parsedTimeeCreated, err := time.Parse("2006-01-02 15:04:05", created_atStr)
+	if err != nil{
+		return user, err
+		// log.Println(err)
+	}
+	created_at_value = &parsedTimeeCreated
+
+	updated_atStr := string(updated_at)
+	parsedTimeeUpdated, err := time.Parse("2006-01-02 15:04:05", updated_atStr)
+	if err != nil{
+		return user, err
+		// log.Println(err)
+	}
+	updated_at_value = &parsedTimeeUpdated
+
+	user.CreatedAt = *created_at_value
+	user.UpdatedAt = *updated_at_value
 
 	return user, nil
 }
@@ -764,5 +841,93 @@ func (m *mysqlDBRepo) DeleteBlockByID(id int) error {
 		log.Println(err)
 		return err
 	}
+	return nil
+}
+
+// DeleteBlockByID deletes a room restriction
+func (m *mysqlDBRepo) UserRegistration(first_name, last_name, phone, email, password string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	bytePass := []byte(password)
+
+	byteHash, err := bcrypt.GenerateFromPassword(bytePass, bcrypt.DefaultCost)
+
+	if err != nil {
+        panic(err)
+    }
+
+	hashedPassword := string(byteHash)
+
+	query := `
+		INSERT INTO users (first_name, last_name, email, password, phone, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?);
+	`
+
+	_, err = m.DB.ExecContext(ctx, query,
+		first_name,
+		last_name,
+		email,
+		hashedPassword,
+		phone,
+		time.Now(),
+		time.Now(),
+	)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}
+
+// DeleteBlockByID deletes a room restriction
+func (m *mysqlDBRepo) IsEmailInDatabase(email string) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `
+		SELECT COUNT(id) FROM users WHERE email = ?
+	`
+
+	row:= m.DB.QueryRowContext(ctx, query, email)
+
+	var numRows int
+	
+	err := row.Scan(&numRows)
+
+	if err != nil{
+		return false, err
+	}
+	return numRows == 1, nil
+}
+
+// DeleteBlockByID deletes a room restriction
+func (m *mysqlDBRepo) ResetPassword(email, password string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	bytePass := []byte(password)
+
+	byteHash, err := bcrypt.GenerateFromPassword(bytePass, bcrypt.DefaultCost)
+
+	if err != nil {
+        panic(err)
+    }
+
+	hashedPassword := string(byteHash)
+
+	query := `
+		UPDATE users SET users.password = ? WHERE email = ?;
+	`
+
+	_, err = m.DB.ExecContext(ctx, query,
+		hashedPassword,
+		email,
+	)
+
+	if err != nil{
+		log.Println(err)
+		return err
+	}
+
 	return nil
 }
