@@ -308,6 +308,7 @@ func (m *Repository) PostAvailability(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+//JSON type structure 
 type jsonResponse struct {
 	OK        bool   `json:"ok"`
 	Message   string `json:"message"`
