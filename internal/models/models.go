@@ -3,6 +3,7 @@ package models
 import "time"
 
 // User is the user model
+
 type User struct {
 	ID          int
 	FirstName   string
