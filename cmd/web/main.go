@@ -78,7 +78,7 @@ func run() (*driver.DB, error) {
 
 	// connect to database
 	log.Println("Connecting to database...")
-	db, err := driver.ConnectSQL("root:@tcp(localhost:3306)/bookings")
+	db, err := driver.ConnectSQL("root:password@tcp(mysql-test:3306)/bookings")
 	if err != nil {
 		log.Fatal("Cannot connect to database! Dying...")
 	}
