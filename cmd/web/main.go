@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/alexedwards/scs/v2"
+	"github.com/joho/godotenv"
 	"github.com/salimmia/bookings/internal/config"
 	"github.com/salimmia/bookings/internal/driver"
 	"github.com/salimmia/bookings/internal/handlers"
@@ -78,7 +79,21 @@ func run() (*driver.DB, error) {
 
 	// connect to database
 	log.Println("Connecting to database...")
-	db, err := driver.ConnectSQL("root:password@tcp(mysql-db:3306)/bookings")
+
+	err := godotenv.Load("./env/mysql.env")
+
+	if err != nil{
+		return nil, err
+	}
+
+	dbRootUsername := os.Getenv("DB_ROOT_USERNAME")
+	dbRootPassword := os.Getenv("DB_ROOT_PASSWORD")
+	dbHost := os.Getenv("DB_HOST")
+	dbName := os.Getenv("DB_NAME")
+	dbPort := os.Getenv("DB_PORT")
+
+	db, err := driver.ConnectSQL(fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbRootUsername, dbRootPassword, dbHost, dbPort, dbName))
+	
 	if err != nil {
 		log.Fatal("Cannot connect to database! Dying...")
 	}

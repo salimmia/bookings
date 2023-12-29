@@ -1,0 +1,27 @@
+----------------------
+Run mysql-db container
+----------------------
+
+    docker run --name mysql-db \
+        -v mysql-data:/var/lib/mysql \
+        --network booking-net \
+        -p 3306:3306 \
+        -e MYSQL_ROOT_PASSWORD=password \
+        -d \
+        mysql
+
+----------------------
+Build backend
+----------------------
+
+    docker build -t bookings:updated-previous .
+
+----------------------
+Run backend container
+----------------------
+
+    docker run --name bookings-app \
+        --network booking-net \
+        -p 8080:8080 \
+        -d \
+        bookings:updated-previous
