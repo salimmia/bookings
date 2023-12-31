@@ -1,27 +1,35 @@
+docker exec -i bookings-test-mysql-db-1 mysql -uroot -ppassword bookings < /home/selim/Desktop/workstation/projects/bookings/Database/bookings.sql
+
+----------------------
+Create a network
+----------------------
+
+    docker network create bookings-net 
+
 ----------------------
 Run mysql-db container
 ----------------------
 
     docker run --name mysql-db \
-        -v mysql-data:/var/lib/mysql \
-        --network booking-net \
-        -p 3306:3306 \
-        -e MYSQL_ROOT_PASSWORD=password \
-        -d \
-        mysql
+    -v "$PWD/data":/var/lib/mysql \
+    --network bookings-net \
+    --user 1000:1000 \
+    -e MYSQL_ROOT_PASSWORD=password \
+    -d \
+    mysql:8.2.0
 
 ----------------------
 Build backend
 ----------------------
 
-    docker build -t bookings:updated-previous .
+    docker build -t bookings:2.0.2 .
 
 ----------------------
 Run backend container
 ----------------------
 
     docker run --name bookings-app \
-        --network booking-net \
+        --network bookings-net \
         -p 8080:8080 \
         -d \
-        bookings:updated-previous
+        bookings:2.0.2
