@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  mysql-db:
+    image: mysql:8.2.0
+    container_name: mysql-db
+    volumes:
+      - "$PWD/data:/var/lib/mysql"
+    networks:
+      - bookings-net
+    user: "1000:1000"
+    # environment:
+    #   MYSQL_ROOT_PASSWORD: password
+    env_file:
+      - ./env/mysql.env
+    restart: always
+
+  backend-app:
+    build: .
+    image: bookings:2.0.2
+    container_name: bookings-app
+    networks:
+      - bookings-net
+    ports:
+      - "8080:8080"
+    # volumes:
+    #   - ./:/app/templates/
+    # - /app
+    restart: always
+    depends_on:
+      - mysql-db
+
+networks:
+  bookings-net:
+    driver: bridge

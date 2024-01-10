@@ -1,6 +1,6 @@
 # Bookings and Reservations
 
-The repository for [Building Modern Web Applications with Go](https://www.udemy.com/course/building-modern-web-applications-with-go/?referralCode=0415FB906223F10C6800).
+The repository for `Building Modern Web Applications with Go`.
 
 - Built in Go version 1.18
 - Uses the [chi router](github.com/go-chi/chi)
